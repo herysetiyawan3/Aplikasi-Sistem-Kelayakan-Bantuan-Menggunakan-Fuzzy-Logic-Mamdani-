@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - Fuzzy Logic UKT{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12 mb-4">
+        <div class="card">
+            <div class="card-body">
+                <h2 class="card-title">
+                    <i class="fas fa-cog me-2"></i>Admin Dashboard
+                </h2>
+                <p class="text-muted">Kelola aturan fuzzy logic untuk perhitungan kelayakan UKT</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title mb-4">
+                    <i class="fas fa-plus-circle me-2"></i>Tambah Aturan Baru
+                </h3>
+                <form id="ruleForm" class="needs-validation" novalidate>
+                    <div class="mb-3">
+                        <label for="ruleName" class="form-label">Nama Aturan</label>
+                        <input type="text" class="form-control" id="ruleName" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="ruleCondition" class="form-label">Kondisi</label>
+                        <textarea class="form-control" id="ruleCondition" rows="3" required></textarea>
+                        <div class="form-text">Contoh: penghasilan['rendah'] & tanggungan['banyak']</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="ruleOutput" class="form-label">Output</label>
+                        <input type="text" class="form-control" id="ruleOutput" required>
+                        <div class="form-text">Contoh: kelayakan['layak']</div>
+                    </div>
+                    
+                    <div class="text-center">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-save me-2"></i>Simpan Aturan
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title mb-4">
+                    <i class="fas fa-list me-2"></i>Daftar Aturan
+                </h3>
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Nama Aturan</th>
+                                <th>Kondisi</th>
+                                <th>Output</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for rule in rules %}
+                            <tr>
+                                <td>{{ rule.rule_name }}</td>
+                                <td>{{ rule.rule_condition }}</td>
+                                <td>{{ rule.rule_output }}</td>
+                                <td>
+                                    <button class="btn btn-sm btn-danger delete-rule" data-id="{{ rule.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    $('#ruleForm').on('submit', function(e) {
+        e.preventDefault();
+        
+        const data = {
+            rule_name: $('#ruleName').val(),
+            rule_condition: $('#ruleCondition').val(),
+            rule_output: $('#ruleOutput').val()
+        };
+        
+        $.ajax({
+            url: '/admin/add_rule',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify(data),
+            success: function(response) {
+                location.reload();
+            },
+            error: function() {
+                alert('Terjadi kesalahan saat menyimpan aturan');
+            }
+        });
+    });
+    
+    $('.delete-rule').on('click', function() {
+        const ruleId = $(this).data('id');
+        
+        if (confirm('Apakah Anda yakin ingin menghapus aturan ini?')) {
+            $.ajax({
+                url: '/admin/delete_rule/' + ruleId,
+                type: 'DELETE',
+                success: function(response) {
+                    location.reload();
+                },
+                error: function() {
+                    alert('Terjadi kesalahan saat menghapus aturan');
+                }
+            });
+        }
+    });
+});
+</script>
+{% endblock %} 

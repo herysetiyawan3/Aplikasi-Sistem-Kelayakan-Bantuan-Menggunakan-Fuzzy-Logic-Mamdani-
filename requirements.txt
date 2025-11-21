@@ -1,0 +1,9 @@
+flask==2.3.3
+flask-sqlalchemy==3.0.5
+flask-login==0.6.2
+pandas==2.0.3
+numpy==1.24.3
+scikit-fuzzy==0.4.2
+python-dotenv==1.0.0
+werkzeug==2.3.7
+matplotlib==3.7.1 
